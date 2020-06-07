@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 * {
   margin: 0;
   padding: 0;
@@ -13,4 +14,14 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+div {
+  padding: 5px;
+  margin: 2px;
+  font-family: "Press Start 2P", cursive;
+}
+
+.score {
+  color: #bada55;
 }

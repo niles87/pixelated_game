@@ -1,5 +1,7 @@
 const canvas = document.getElementById("canvas1");
 const ctx = canvas.getContext("2d");
+const totalScore = document.querySelector(".score");
+const timer = document.querySelector(".timer");
 canvas.width = 800;
 canvas.height = 500;
 
@@ -93,12 +95,12 @@ class Character {
 class NPC {
   constructor() {
     this.x = 800;
-    this.y = 200;
+    this.y = Math.random() * (canvas.height - 100 - this.height) + 100;
     this.width = 32;
     this.height = 48;
     this.frameX = 0;
     this.frameY = 1;
-    this.speed = Math.random() * 1.5 + 8;
+    this.speed = Math.random() * 7 + 3;
     this.actions = npcActions[Math.floor(Math.random() * npcActions.length)];
   }
   draw() {
@@ -119,7 +121,7 @@ class NPC {
       if (this.x > 0) {
         this.x -= this.speed;
       } else {
-        this.x = 800 + this.width;
+        this.x = canvas.width + this.width;
         this.y = Math.random() * (canvas.height - 100 - this.height) + 100;
       }
     } else if (this.actions === "right") {
@@ -141,8 +143,11 @@ class NPC {
     }
   }
 }
-let npcArr = [];
 const player = new Character();
+let fps, fpsInterval, startTime, now, then, elapsed;
+let score = 0;
+let npcArr = [];
+
 for (let n = 0; n < npcs; n++) {
   npcArr.push(new NPC());
 }
@@ -157,7 +162,27 @@ window.addEventListener("keyup", function (e) {
   player.moving = false;
 });
 
-let fps, fpsInterval, startTime, now, then, elapsed;
+function addNPC(npcs, arr) {
+  for (let n = 0; n < npcs; n++) {
+    arr.push(new NPC());
+  }
+}
+
+function collisionDetection() {
+  for (let n = 0; n < npcArr.length; n++) {
+    if (
+      player.x < npcArr[n].x + npcArr[n].width / 2 &&
+      player.x + player.width / 2 > npcArr[n].x &&
+      player.y < npcArr[n].y + npcArr[n].height / 2 &&
+      player.y + player.height / 2 > npcArr[n].y
+    ) {
+      score++;
+      npcArr.splice(npcArr.indexOf(npcArr[n]), 1);
+      addNPC(npcs, npcArr);
+    }
+  }
+  totalScore.innerHTML = score;
+}
 
 function startAnimating(fps) {
   fpsInterval = 1000 / fps;
@@ -174,12 +199,13 @@ function animate() {
     then = now - (elapsed % fpsInterval);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    player.draw();
+    player.update();
     for (let i = 0; i < npcArr.length; i++) {
       npcArr[i].draw();
       npcArr[i].update();
     }
-    player.draw();
-    player.update();
+    collisionDetection();
   }
 }
 startAnimating(15);
